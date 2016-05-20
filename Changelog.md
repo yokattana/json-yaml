@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+Unreleased
+----------
+
+Date: TBA
+
+ * Added: Homebrew formula: `brew tap sjmulder/tap; brew install json-yaml`
+
+
 Version 1.0.1
 -------------
 

@@ -46,6 +46,17 @@ Examples
       categories: []
 
 
+Installing
+----------
+
+On OS X, you can use [Homebrew](http://brew.sh):
+
+    brew tap sjmulder/tap
+    brew install json-yaml
+
+For other platforms, consult the _Building_ section below.
+
+
 Building
 --------
 
