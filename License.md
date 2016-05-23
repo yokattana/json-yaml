@@ -1,4 +1,5 @@
 Copyright (c) 2016, Sijmen Mulder
+Copyright (c) 2016, Iku (iku@yokatana.com)
 
 All rights reserved.
 

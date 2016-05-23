@@ -7,7 +7,8 @@ Unreleased
 
 Date: TBA
 
- * Added: Homebrew formula: `brew tap sjmulder/tap; brew install json-yaml`
+ * Mainainership moved to Iku (iku@yokatana.com, @yokatana on GitHub)
+ * Added: Homebrew formula: `brew tap yokatana/tap; brew install json-yaml`
 
 
 Version 1.0.1

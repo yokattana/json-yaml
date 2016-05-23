@@ -51,7 +51,7 @@ Installing
 
 On OS X, you can use [Homebrew](http://brew.sh):
 
-    brew tap sjmulder/tap
+    brew tap yokatana/tap
     brew install json-yaml
 
 For other platforms, consult the _Building_ section below.
@@ -77,15 +77,16 @@ Links
 -----
 
 Home page:
-https://github.com/sjmulder/json-yaml
+https://github.com/yokatana/json-yaml
 
 Builds:
-https://travis-ci.org/sjmulder/json-yaml/
+https://travis-ci.org/yokatana/json-yaml/
 
-[![Build Status](https://travis-ci.org/sjmulder/json-yaml.svg?branch=master)](https://travis-ci.org/sjmulder/json-yaml)
+[![Build Status](https://travis-ci.org/yokatana/json-yaml.svg?branch=master)](https://travis-ci.org/yokatana/json-yaml)
 
 
 Authors
 -------
 
-Written by Sijmen Mulder <ik@sjmulder.nl>, 2016.
+ * Written by Sijmen Mulder (ik@sjmulder.nl), 2016.
+ * Maintained by Iku (iku@yokatana.com), 2016.
