@@ -8,9 +8,9 @@
 #define PROG_NAME	"json-yaml"
 #define PROG_VER	"1.0.1"
 
-static yajl_handle	g_yajl;
-static bool		g_yaml_initialized = false;
-static yaml_emitter_t	g_emitter;
+struct jy_context {
+	yaml_emitter_t* emitter;
+};
 
 static void print_help()
 {
@@ -20,19 +20,6 @@ static void print_help()
 	printf("Options:\n");
 	printf(" -v, --version   print version number and exit\n");
 	printf(" -h, --help      print this message and exit\n");
-}
-
-static void cleanup()
-{
-	if (g_yajl) {
-		yajl_free(g_yajl);
-		g_yajl = NULL;
-	}
-
-	if (g_yaml_initialized) {
-		yaml_emitter_delete(&g_emitter);
-		g_yaml_initialized = false;
-	}
 }
 
 static void check_yajl(yajl_status status)
@@ -48,13 +35,13 @@ static void check_yajl(yajl_status status)
 	}
 }
 
-static void check_yaml(int status)
+static void check_yaml(yaml_emitter_t* emitter, int status)
 {
 	if (status) {
 		return;
 	}
 
-	switch (g_emitter.error) {
+	switch (emitter->error) {
 	case YAML_MEMORY_ERROR:
 		fprintf(stderr, PROG_NAME ": error writing YAML: "
 			"out of memory\n");
@@ -63,7 +50,7 @@ static void check_yaml(int status)
 	case YAML_WRITER_ERROR:
 	case YAML_EMITTER_ERROR:
 		fprintf(stderr, PROG_NAME ": error writing YAML: %s\n",
-			g_emitter.problem);
+			emitter->problem);
 		break;
 
 	default:
@@ -76,16 +63,20 @@ static void check_yaml(int status)
 
 static int handle_null(void* ctx)
 {
+	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+
 	yaml_event_t event;
 	yaml_scalar_event_initialize(&event, NULL, NULL, (yaml_char_t*)"null",
 			4, true, true, YAML_PLAIN_SCALAR_STYLE);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(emitter, yaml_emitter_emit(emitter, &event));
 
 	return true;
 }
 
 static int handle_boolean(void* ctx, int val)
 {
+	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+
 	yaml_event_t event;
 	if (val) {
 		yaml_scalar_event_initialize(&event, NULL, NULL,
@@ -97,12 +88,14 @@ static int handle_boolean(void* ctx, int val)
 				YAML_ANY_SCALAR_STYLE);
 	}
 
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(emitter, yaml_emitter_emit(emitter, &event));
 	return true;
 }
 
 static int handle_integer(void* ctx, long long val)
 {
+	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+
 	char str[32];
 	int num = snprintf(str, sizeof(str), "%lli", val);
 	if (num >= sizeof(str)) {
@@ -113,91 +106,107 @@ static int handle_integer(void* ctx, long long val)
 	yaml_event_t event;
 	yaml_scalar_event_initialize(&event, NULL, NULL, (yaml_char_t*)str,
 			(size_t)num, true, true, YAML_ANY_SCALAR_STYLE);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(emitter, yaml_emitter_emit(emitter, &event));
 
 	return true;
 }
 
 static int handle_double(void* ctx, double val)
 {
+	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+
 	char str[32];
 	int num = snprintf(str, sizeof(str), "%f", val);
 
 	yaml_event_t event;
 	yaml_scalar_event_initialize(&event, NULL, NULL, (yaml_char_t*)str,
 			(size_t)num, true, true, YAML_ANY_SCALAR_STYLE);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(emitter, yaml_emitter_emit(emitter, &event));
 
 	return true;
 }
 
 static int handle_number(void* ctx, const char* str, size_t len)
 {
+	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+
 	yaml_event_t event;
 	yaml_scalar_event_initialize(&event, NULL, NULL,
 			(yaml_char_t*)str, len, true, true,
 			YAML_ANY_SCALAR_STYLE);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(emitter, yaml_emitter_emit(emitter, &event));
 
 	return true;
 }
 
 static int handle_string(void* ctx, const unsigned char* str, size_t len)
 {
+	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+
 	yaml_event_t event;
 	yaml_scalar_event_initialize(&event, NULL, NULL,
 			(yaml_char_t*)str, len, true, true,
 			YAML_ANY_SCALAR_STYLE);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(emitter, yaml_emitter_emit(emitter, &event));
 
 	return true;
 }
 
 static int handle_map_start(void* ctx)
 {
+	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+
 	yaml_event_t event;
 	yaml_mapping_start_event_initialize(&event, NULL, NULL, true,
 			YAML_ANY_MAPPING_STYLE);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(emitter, yaml_emitter_emit(emitter, &event));
 
 	return true;
 }
 
 static int handle_map_key(void* ctx, const unsigned char* str, size_t len)
 {
+	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+
 	yaml_event_t event;
 	yaml_scalar_event_initialize(&event, NULL, NULL,
 			(yaml_char_t*)str, len, true, true,
 			YAML_ANY_SCALAR_STYLE);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(emitter, yaml_emitter_emit(emitter, &event));
 
 	return true;
 }
 
 static int handle_map_end(void* ctx)
 {
+	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+
 	yaml_event_t event;
 	yaml_mapping_end_event_initialize(&event);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(emitter, yaml_emitter_emit(emitter, &event));
 
 	return true;
 }
 
 static int handle_array_start(void* ctx)
 {
+	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+
 	yaml_event_t event;
 	yaml_sequence_start_event_initialize(&event, NULL, NULL, false,
 			YAML_ANY_SEQUENCE_STYLE);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(emitter, yaml_emitter_emit(emitter, &event));
 
 	return true;
 }
 
 static int handle_array_end(void* ctx)
 {
+	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+
 	yaml_event_t event;
 	yaml_sequence_end_event_initialize(&event);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(emitter, yaml_emitter_emit(emitter, &event));
 
 	return true;
 }
@@ -218,8 +227,6 @@ static const yajl_callbacks callbacks = {
 
 int main(int argc, const char* argv[])
 {
-	atexit(cleanup);
-
 	const char* filename = NULL;
 
 	for (int i = 1; i < argc; i++) {
@@ -254,19 +261,22 @@ int main(int argc, const char* argv[])
 		}
 	}
 
-	yaml_emitter_initialize(&g_emitter);
-	yaml_emitter_set_output_file(&g_emitter, stdout);
+	yaml_emitter_t emitter;
 
-	g_yaml_initialized = true;
+	yaml_emitter_initialize(&emitter);
+	yaml_emitter_set_output_file(&emitter, stdout);
 
 	yaml_event_t event;
 	yaml_stream_start_event_initialize(&event, YAML_UTF8_ENCODING);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(&emitter, yaml_emitter_emit(&emitter, &event));
 
 	yaml_document_start_event_initialize(&event, NULL, NULL, NULL, true);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(&emitter, yaml_emitter_emit(&emitter, &event));
 	
-	yajl_handle yajl = yajl_alloc(&callbacks, NULL, NULL);
+	struct jy_context ctx;
+	ctx.emitter = &emitter;
+
+	yajl_handle yajl = yajl_alloc(&callbacks, NULL, &ctx);
 
 	unsigned char buf[4096];
 	size_t num;
@@ -282,10 +292,10 @@ int main(int argc, const char* argv[])
 	check_yajl(yajl_complete_parse(yajl));
 
 	yaml_document_end_event_initialize(&event, true);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(&emitter, yaml_emitter_emit(&emitter, &event));
 
 	yaml_stream_end_event_initialize(&event);
-	check_yaml(yaml_emitter_emit(&g_emitter, &event));
+	check_yaml(&emitter, yaml_emitter_emit(&emitter, &event));
 
 	return 0;
 }
