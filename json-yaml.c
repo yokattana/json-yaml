@@ -9,7 +9,7 @@
 #define PROG_VER	"1.0.1"
 
 struct jy_context {
-	yaml_emitter_t* emitter;
+	yaml_emitter_t *emitter;
 };
 
 static void print_help()
@@ -25,7 +25,7 @@ static void print_help()
 static void check_yajl(yajl_status status)
 {
 	if (status != yajl_status_ok) {
-		const char* message = yajl_status_to_string(status);
+		const char *message = yajl_status_to_string(status);
 		if (!message) {
 			message = "no reason given";
 		}
@@ -35,7 +35,7 @@ static void check_yajl(yajl_status status)
 	}
 }
 
-static void check_yaml(yaml_emitter_t* emitter, int status)
+static void check_yaml(yaml_emitter_t *emitter, int status)
 {
 	if (status) {
 		return;
@@ -61,9 +61,9 @@ static void check_yaml(yaml_emitter_t* emitter, int status)
 	exit(EXIT_FAILURE);
 }
 
-static int handle_null(void* ctx)
+static int handle_null(void *ctx)
 {
-	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+	yaml_emitter_t *emitter = ((struct jy_context*)ctx)->emitter;
 
 	yaml_event_t event;
 	yaml_scalar_event_initialize(&event, NULL, NULL, (yaml_char_t*)"null",
@@ -73,9 +73,9 @@ static int handle_null(void* ctx)
 	return true;
 }
 
-static int handle_boolean(void* ctx, int val)
+static int handle_boolean(void *ctx, int val)
 {
-	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+	yaml_emitter_t *emitter = ((struct jy_context*)ctx)->emitter;
 
 	yaml_event_t event;
 	if (val) {
@@ -92,9 +92,9 @@ static int handle_boolean(void* ctx, int val)
 	return true;
 }
 
-static int handle_integer(void* ctx, long long val)
+static int handle_integer(void *ctx, long long val)
 {
-	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+	yaml_emitter_t *emitter = ((struct jy_context*)ctx)->emitter;
 
 	char str[32];
 	int num = snprintf(str, sizeof(str), "%lli", val);
@@ -111,9 +111,9 @@ static int handle_integer(void* ctx, long long val)
 	return true;
 }
 
-static int handle_double(void* ctx, double val)
+static int handle_double(void *ctx, double val)
 {
-	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+	yaml_emitter_t *emitter = ((struct jy_context*)ctx)->emitter;
 
 	char str[32];
 	int num = snprintf(str, sizeof(str), "%f", val);
@@ -126,9 +126,9 @@ static int handle_double(void* ctx, double val)
 	return true;
 }
 
-static int handle_number(void* ctx, const char* str, size_t len)
+static int handle_number(void *ctx, const char *str, size_t len)
 {
-	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+	yaml_emitter_t *emitter = ((struct jy_context*)ctx)->emitter;
 
 	yaml_event_t event;
 	yaml_scalar_event_initialize(&event, NULL, NULL,
@@ -139,9 +139,9 @@ static int handle_number(void* ctx, const char* str, size_t len)
 	return true;
 }
 
-static int handle_string(void* ctx, const unsigned char* str, size_t len)
+static int handle_string(void *ctx, const unsigned char *str, size_t len)
 {
-	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+	yaml_emitter_t *emitter = ((struct jy_context*)ctx)->emitter;
 
 	yaml_event_t event;
 	yaml_scalar_event_initialize(&event, NULL, NULL,
@@ -152,9 +152,9 @@ static int handle_string(void* ctx, const unsigned char* str, size_t len)
 	return true;
 }
 
-static int handle_map_start(void* ctx)
+static int handle_map_start(void *ctx)
 {
-	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+	yaml_emitter_t *emitter = ((struct jy_context*)ctx)->emitter;
 
 	yaml_event_t event;
 	yaml_mapping_start_event_initialize(&event, NULL, NULL, true,
@@ -164,9 +164,9 @@ static int handle_map_start(void* ctx)
 	return true;
 }
 
-static int handle_map_key(void* ctx, const unsigned char* str, size_t len)
+static int handle_map_key(void *ctx, const unsigned char *str, size_t len)
 {
-	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+	yaml_emitter_t *emitter = ((struct jy_context*)ctx)->emitter;
 
 	yaml_event_t event;
 	yaml_scalar_event_initialize(&event, NULL, NULL,
@@ -177,9 +177,9 @@ static int handle_map_key(void* ctx, const unsigned char* str, size_t len)
 	return true;
 }
 
-static int handle_map_end(void* ctx)
+static int handle_map_end(void *ctx)
 {
-	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+	yaml_emitter_t *emitter = ((struct jy_context*)ctx)->emitter;
 
 	yaml_event_t event;
 	yaml_mapping_end_event_initialize(&event);
@@ -188,9 +188,9 @@ static int handle_map_end(void* ctx)
 	return true;
 }
 
-static int handle_array_start(void* ctx)
+static int handle_array_start(void *ctx)
 {
-	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+	yaml_emitter_t *emitter = ((struct jy_context*)ctx)->emitter;
 
 	yaml_event_t event;
 	yaml_sequence_start_event_initialize(&event, NULL, NULL, false,
@@ -200,9 +200,9 @@ static int handle_array_start(void* ctx)
 	return true;
 }
 
-static int handle_array_end(void* ctx)
+static int handle_array_end(void *ctx)
 {
-	yaml_emitter_t* emitter = ((struct jy_context*)ctx)->emitter;
+	yaml_emitter_t *emitter = ((struct jy_context*)ctx)->emitter;
 
 	yaml_event_t event;
 	yaml_sequence_end_event_initialize(&event);
@@ -225,12 +225,12 @@ static const yajl_callbacks callbacks = {
 	handle_array_end
 };
 
-int main(int argc, const char* argv[])
+int main(int argc, const char *argv[])
 {
-	const char* filename = NULL;
+	const char *filename = NULL;
 
 	for (int i = 1; i < argc; i++) {
-		const char* arg = argv[i];
+		const char *arg = argv[i];
 		if (strcmp("-v", arg) == 0 ||
 				strcmp("--version", arg) == 0) {
 			printf(PROG_VER "\n");
@@ -252,7 +252,7 @@ int main(int argc, const char* argv[])
 		}
 	}
 	
-	FILE* file = stdin;
+	FILE *file = stdin;
 	if (filename) {
 		file = fopen(filename, "r");
 		if (!file) {
