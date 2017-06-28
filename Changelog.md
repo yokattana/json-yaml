@@ -7,7 +7,6 @@ Unreleased
 
 Date: TBA
 
- * Added: FreeBSD compatible Makefile
  * Moved to yokattana GitHub account
  * Added: Homebrew formula: `brew tap yokattana/tap; brew install json-yaml`
 
